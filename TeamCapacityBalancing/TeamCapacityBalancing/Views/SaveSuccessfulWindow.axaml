@@ -1,0 +1,23 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:TeamCapacityBalancing.ViewModels"
+		xmlns:models="using:TeamCapacityBalancing.Models"
+		Width="300"	Height="150"
+		CanResize="False"
+		x:Class="TeamCapacityBalancing.Views.SaveSuccessfulWindow"
+        Title="SaveSuccessfulWindow"
+		x:CompileBindings="True" >
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<TextBlock Name="message" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+		<Button Content="OK" Click="Close" HorizontalAlignment="Center" Grid.Row="1"/>
+	</Grid>
+
+</Window>

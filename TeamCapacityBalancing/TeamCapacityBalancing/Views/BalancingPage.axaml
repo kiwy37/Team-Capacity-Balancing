@@ -1,0 +1,738 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="using:TeamCapacityBalancing.ViewModels"
+			 xmlns:behaviors="clr-namespace:Avalonia.Controls.Behaviors;assembly=Avalonia.Controls.Behaviors"
+			 xmlns:models="using:TeamCapacityBalancing.Models"
+             xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1600" d:DesignHeight="1600"
+             x:Class="TeamCapacityBalancing.Views.BalancingPage"
+			 x:DataType="vm:BalancingViewModel"
+			 x:Name="BalancingPageControl"
+			 x:CompileBindings="True"
+			 >
+	<UserControl.DataContext>
+		<vm:BalancingViewModel/>
+	</UserControl.DataContext>
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="8*"/>
+		</Grid.RowDefinitions>
+		<StackPanel Grid.Row="0" Orientation="Horizontal">
+			<ComboBox Width="300" Margin="5" SelectedItem="{Binding SelectedUser}" Items="{Binding AllUsers}" PlaceholderText="Choose a team leader">
+				<ComboBox.ItemTemplate>
+					<DataTemplate x:DataType="models:User">
+						<StackPanel IsVisible="{ReflectionBinding #BalancingPageControl.DataContext.ComboOpen}" Orientation="Horizontal">
+							<TextBlock Text="{Binding UserInComboBox}"/>
+						</StackPanel>
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
+
+			<Button Width="40" Height="40" Background="Transparent" Command="{Binding SerializeOnSaveCommand}">
+				<icons:MaterialIcon Width="40" Height="40" Kind="ContentSave"/>
+			</Button>
+			<Separator Width="30" />
+
+
+			
+			
+			<Button Width="40" Height="40" Background="Transparent" Command="{Binding OpenSprintSelectionPageCommand}">
+				<icons:MaterialIcon Width="40" Height="40" Kind="Calendar"/>
+			</Button>
+			<Button  Width="40" Height="40" Background="Transparent" Command="{Binding OpenReleaseCalendarCommand}">
+				<icons:MaterialIcon Width="40" Height="40" Kind="CalendarClockOutline"/>
+			</Button>
+			<Button Width="40" Height="40" Background="Transparent" Command="{Binding OpenTeamPageCommand}">
+				<icons:MaterialIcon Width="40" Height="40" Kind="HumanEdit"/>
+			</Button>
+			<Separator Width="30"/>
+
+			<Button Width="40" Height="40" Background="Transparent" Command="{Binding RefreshClickedCommand}">
+				<icons:MaterialIcon Width="40" Height="40" Kind="Cached"/>
+			</Button>
+			<Button  Width="40" Height="40" Background="Transparent" Command="{Binding CalculateCoverageButtonCommand}">
+				<icons:MaterialIcon Width="40" Height="40" Kind="Percent"/>
+			</Button>
+			<Separator Width="30" />
+
+
+			<ToggleButton  Width="40" Height="40" Background="Transparent" IsChecked="{Binding IsBalancing}" Command="{Binding CalculateTotalsButtonCommand}">
+				<icons:MaterialIcon Width="40" Height="40" Kind="ChartBar"/>
+			</ToggleButton>
+			<ToggleButton Height="40"
+						  HorizontalContentAlignment="Center"
+						  VerticalContentAlignment="Center"
+						  Content="Short-term"
+						  IsChecked="{Binding IsShortTermVisible}"
+						  Command="{Binding ShowShortTermStoryesCommand}"
+						  Background="Transparent">
+				<icons:MaterialIcon Width="40" Height="40" Kind="CalendarCursor"/>
+			</ToggleButton>	
+
+			<Separator Width="150" />
+			<Button  Height="40" VerticalContentAlignment="Center"  Command="{Binding DeleteLocalFilesCommand}" Background="Transparent" Foreground="Red" Content="Delete Local Files">
+				<icons:MaterialIcon Width="40" Height="40" Kind="Eraser"/>
+			</Button>
+
+
+		</StackPanel>
+		<SplitView Grid.Row="1" OpenPaneLength="250" CompactPaneLength="35" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsPaneOpen="{Binding IsPaneOpen}" DisplayMode="{Binding Mode}">
+			<SplitView.Pane>
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="*"/>
+						<RowDefinition Height="Auto"/>
+					</Grid.RowDefinitions>
+
+					<StackPanel Grid.Row="0">
+						<Panel>
+							<ToggleButton Name="MenuToggle" IsChecked="{Binding IsPaneOpen}">
+								<icons:MaterialIcon Kind="Menu"></icons:MaterialIcon>
+							</ToggleButton>
+							<TextBlock Text="Epics" IsVisible="{Binding IsPaneOpen}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+						</Panel>
+
+						<StackPanel IsVisible="{Binding #MenuToggle.IsChecked}" Margin="0 10 0 0">
+							<Button Content="All epics" IsVisible="{Binding !MiniMessage}" Padding="5" Command="{Binding AllEpicsClickedCommand}" Background="Transparent"/>
+						</StackPanel>
+
+
+					<ItemsRepeater Items="{Binding Epics}">
+							<ItemsRepeater.ItemTemplate>
+								<DataTemplate>
+									<Border Margin="0,10,0,0">
+										<Button Content="{Binding Name}" IsVisible="{Binding #MenuToggle.IsChecked}" Background="Transparent" Command="{ReflectionBinding #BalancingPageControl.DataContext.EpicClickedCommand}" CommandParameter="{Binding Id}"/>
+									</Border>
+								</DataTemplate>
+							</ItemsRepeater.ItemTemplate>
+						</ItemsRepeater>
+						
+					</StackPanel>
+
+
+					<Border Grid.Row="1" BorderBrush="Black" BorderThickness="0,1,0,0" Margin="10,0,10,0" IsVisible="{Binding #MenuToggle.IsChecked}"/>
+
+					<StackPanel Grid.Row="1">
+						
+						<StackPanel Grid.Row="1" Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="10,10,0,0">
+							<TextBlock Text="Filters" Margin="0,0,0,5"/>
+							<ComboBox Width="150" Margin="0,0,0,5" SelectedItem="{Binding FilterString}" Items="{Binding BusinessCase}" PlaceholderText="None">
+								<ComboBox.ItemTemplate>
+									<DataTemplate x:DataType="vm:BalancingViewModel">
+										<StackPanel  Orientation="Horizontal">
+											<TextBlock Text="{Binding }"/>
+										</StackPanel>
+									</DataTemplate>
+								</ComboBox.ItemTemplate>
+							</ComboBox>
+						</StackPanel>
+					</StackPanel>
+				</Grid>
+			</SplitView.Pane>
+			<Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="3*"/>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+				</Grid.RowDefinitions>
+
+				<StackPanel Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding MiniMessage}">
+					<TextBlock Text="Select team leader to view data" FontSize="30"/>
+				</StackPanel>
+
+				<DataGrid Grid.Row="0" x:Name="dataGridZero" CanUserResizeColumns="True"  ColumnWidth="*" Items="{Binding MyUserAssociation}" AutoGenerateColumns="False" IsVisible="{Binding GetStories}"
+
+					   GridLinesVisibility="All" BorderThickness="1" BorderBrush="Gray">
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Width="3*" CanUserResize="True" Header="Story" >
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock  Text="{Binding StoryData.Name}" Margin="10,0,0,0" ToolTip.Tip="{Binding StoryData.Name}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Width="0.5*" Header="ShortTerm">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<CheckBox IsChecked="{Binding ShortTerm}" HorizontalAlignment="Center" Command="{ReflectionBinding #BalancingPageControl.DataContext.ShowShortTermStoryesCommand}" />
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Header="Remaining(days)">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Remaining}" HorizontalAlignment="Center"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[0].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[0].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[0].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100" />
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[1].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[1].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[1].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[2].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[2].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[2].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[3].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[3].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[3].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[4].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[4].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[4].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[5].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[5].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[5].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[6].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[6].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[6].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[7].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[7].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[7].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[8].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[8].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[8].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[9].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[9].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[9].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Header="Coverage" Width="100">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<StackPanel Orientation="Horizontal"   Background="{Binding ColorBackgroundList[0]}"  VerticalAlignment="Stretch">
+										<Separator HorizontalAlignment="Left" Width="45" VerticalAlignment="Stretch"/>	
+										<TextBlock Text="{Binding Coverage.Value}"/>
+										<TextBlock Text="%"/>
+									</StackPanel>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+				</DataGrid>
+				<DataGrid Grid.Row="1" x:Name="dataGridOne" Height="250" ColumnWidth="*" IsVisible="{Binding IsShortTermVisible}" Items="{Binding ShortTermStoryes}"
+						 AutoGenerateColumns="False" GridLinesVisibility="All" BorderThickness="1" BorderBrush="Gray">
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Width="3*" Header="Story">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding StoryData.Name}" HorizontalAlignment="Center"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Width="0.5*" Header="ShortTerm">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<CheckBox IsChecked="{Binding ShortTerm}" HorizontalAlignment="Center" Command="{ReflectionBinding #BalancingPageControl.DataContext.UncheckShortTermStoryCommand}" CommandParameter="{Binding StoryData.Name}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Header="Remaining(days)">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Remaining}" HorizontalAlignment="Center"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[0].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[0].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[0].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[1].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[1].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[1].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[2].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[2].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[2].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[3].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[3].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[3].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100" />
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[4].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[4].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[4].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100" />
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[5].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[5].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[5].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100" />
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[6].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[6].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[6].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100" />
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[7].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[7].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[7].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100" />
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[8].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[8].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[8].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[9].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[9].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<NumericUpDown Value="{Binding Days[9].Value, Mode=TwoWay}" ShowButtonSpinner="False" Minimum="0" Maximum="100"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Header="Coverage" Width="100">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<StackPanel Orientation="Horizontal" Background="{Binding ColorBackgroundList[0]}"  VerticalAlignment="Stretch">
+										<Separator HorizontalAlignment="Left" Width="45" VerticalAlignment="Stretch"/>
+										<TextBlock Text="{Binding Coverage.Value}"/>
+										<TextBlock Text="%"/>
+									</StackPanel>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+				</DataGrid>
+				<DataGrid Grid.Row="2" x:Name="dataGridTwo" IsVisible="{Binding IsBalancing}" ColumnWidth="*" Items="{Binding Totals}" AutoGenerateColumns="False"
+						  GridLinesVisibility="All" BorderThickness="1" BorderBrush="Gray"
+						  HeadersVisibility="None">
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Width="3*" Header="Story">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding StoryData.Name}" HorizontalAlignment="Center"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Width="0.5*" Header="ShortTerm">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<CheckBox IsVisible="False" IsChecked="{Binding ShortTerm}" HorizontalAlignment="Center"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Header="Remaining">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock IsVisible="False" Text="{Binding Remaining}" HorizontalAlignment="Center"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn  Header="{Binding TeamMembers[0].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[0].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[0].Value, Mode=TwoWay}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn  Header="{Binding TeamMembers[1].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[1].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[1].Value, Mode=TwoWay}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn  Header="{Binding TeamMembers[2].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[2].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[2].Value, Mode=TwoWay}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+					<DataGrid.Columns>
+						<DataGridTemplateColumn  Header="{Binding TeamMembers[3].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[3].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[3].Value, Mode=TwoWay}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn  Header="{Binding TeamMembers[4].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[4].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[4].Value, Mode=TwoWay}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Header="{Binding TeamMembers[5].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[5].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[5].Value, Mode=TwoWay}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Header="{Binding TeamMembers[6].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[6].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[6].Value, Mode=TwoWay}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn  Header="{Binding TeamMembers[7].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[7].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[7].Value, Mode=TwoWay}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Header="{Binding TeamMembers[8].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[8].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[8].Value, Mode=TwoWay}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn  Header="{Binding TeamMembers[9].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[9].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[9].Value, Mode=TwoWay}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Header="Coverage" Width="100">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock IsVisible="False" Text="{Binding Coverage.Value}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+				</DataGrid>
+				<DataGrid Grid.Row="3" x:Name="dataGridTree" ColumnWidth="*" Items="{Binding Balancing}" AutoGenerateColumns="False" IsVisible="{Binding IsBalancing}"
+			  GridLinesVisibility="All" BorderThickness="1" BorderBrush="Gray"
+			  HeadersVisibility="None">
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Width="3*" Header="Story">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding StoryData.Name}" HorizontalAlignment="Center" />
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Width="0.5*" Header="ShortTerm">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<CheckBox IsVisible="False" IsChecked="{Binding ShortTerm}" HorizontalAlignment="Center"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Header="Remaining">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock IsVisible="False" Text="{Binding Remaining}" HorizontalAlignment="Center"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[0].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[0].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[0].Value, Mode=TwoWay}" Background="{Binding ColorBackgroundList[0]}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[1].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[1].HasTeam, Mode=TwoWay}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[1].Value, Mode=TwoWay}" Background="{Binding ColorBackgroundList[1]}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[2].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[2].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[2].Value, Mode=TwoWay}" Background="{Binding ColorBackgroundList[2]}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[3].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[3].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[3].Value, Mode=TwoWay}" Background="{Binding ColorBackgroundList[3]}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[4].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[4].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[4].Value, Mode=TwoWay}" Background="{Binding ColorBackgroundList[4]}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[5].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[5].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[5].Value, Mode=TwoWay}" Background="{Binding ColorBackgroundList[5]}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[6].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[6].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[6].Value, Mode=TwoWay}" Background="{Binding ColorBackgroundList[6]}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[7].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[7].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[7].Value, Mode=TwoWay}" Background="{Binding ColorBackgroundList[7]}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[8].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[8].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[8].Value, Mode=TwoWay}" Background="{Binding ColorBackgroundList[8]}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn MinWidth="60" Header="{Binding TeamMembers[9].DisplayName}" Width="80" IsVisible="{Binding TeamMembers[9].HasTeam}">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock Text="{Binding Days[9].Value, Mode=TwoWay}" Background="{Binding ColorBackgroundList[9]}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+
+					<DataGrid.Columns>
+						<DataGridTemplateColumn Header="Coverage" Width="100">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate x:DataType="models:UserStoryAssociation">
+									<TextBlock IsVisible="False" Text="{Binding Coverage.Value}"/>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+				</DataGrid>
+
+				<StackPanel Grid.Row="4" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="120" Height="40">
+					<Image Source="..\Images\siemenslogo.png" />
+				</StackPanel>
+			</Grid>
+
+		</SplitView>
+	</Grid>
+
+</UserControl>

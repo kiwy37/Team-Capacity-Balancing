@@ -1,0 +1,109 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="using:TeamCapacityBalancing.ViewModels"
+			 xmlns:models="using:TeamCapacityBalancing.Models"
+			 xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="TeamCapacityBalancing.Views.TeamPage"
+			 x:DataType="vm:TeamViewModel"
+			 x:CompileBindings="True"
+			 >
+
+	<UserControl.DataContext>
+		<vm:TeamViewModel/>
+	</UserControl.DataContext>
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10" Grid.Row="0">
+			<TextBlock Text="Team Selection" FontSize="25"/>
+		</StackPanel>
+
+		<Button Grid.Row="0" HorizontalAlignment="Left" Margin="20" Command="{Binding BackToPageCommand}">
+			<icons:MaterialIcon Width="30" Height="15" Kind="ArrowLeft"/>
+		</Button>
+
+
+		<Grid Grid.Row="1" Margin="15 0 15 0">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+
+			<Grid Grid.Column="0">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="*"/>
+				</Grid.RowDefinitions>
+
+				<StackPanel HorizontalAlignment="Center" Grid.Row="0">
+					<TextBlock Text="All Users" FontSize="20"/>
+				</StackPanel>
+
+				<ListBox Items="{Binding AllUsers}" SelectedItem="{Binding SelectedUserAllUsers}"  Grid.Row="1" Margin="5" >
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal">
+								<TextBlock Text="{Binding DisplayName}" />
+								<TextBlock Text="(" />
+								<TextBlock Text="{Binding HoursPerDay.Value}" />
+								<TextBlock Text=")" />
+							</StackPanel>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+			</Grid>
+
+			<StackPanel Grid.Column="1" VerticalAlignment="Center">
+				<Button Width="40" Height="40" Background="Transparent" Command="{Binding RemoveFromTeamCommand}" IsEnabled="{Binding RemoveFromTeamVisibility}">
+					<icons:MaterialIcon Width="40" Height="40" Kind="ChevronLeft"/>
+				</Button>
+				<Button Width="40" Height="40" Background="Transparent" Command="{Binding AddToTeamCommand}" IsEnabled="{Binding AddToTeamEnabledVisibility}">
+					<icons:MaterialIcon Width="40" Height="40" Kind="ChevronRight"/>
+				</Button>
+				<Button Width="40" Height="40" Background="Transparent" Command="{Binding AddAllToTeamCommand}" IsEnabled="{Binding AddAllFromTeamEnable}">
+					<icons:MaterialIcon Width="40" Height="40" Kind="ChevronDoubleRight"/>
+				</Button>
+				<Button Width="40" Height="40" Background="Transparent" Command="{Binding RemoveAllFromTeamCommand}" IsEnabled="{Binding RemoveAllFromTeamEnable}">
+					<icons:MaterialIcon Width="40" Height="40" Kind="ChevronDoubleLeft"/>
+				</Button>
+			</StackPanel>
+
+			<Grid Grid.Column="2">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="*"/>
+				</Grid.RowDefinitions>
+
+				<StackPanel HorizontalAlignment="Center" Grid.Row="0">
+					<TextBlock Text="My Team" FontSize="20"/>
+				</StackPanel>
+
+				<ListBox Items="{Binding YourTeam}"  SelectedItem="{Binding SelectedUserYourTeam}" Grid.Row="1" Margin="5">
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal">
+								<TextBlock Text="{Binding DisplayName}" />
+								<TextBlock Text="(" />
+								<TextBlock Text="{Binding HoursPerDay.Value}" />
+								<TextBlock Text=")" />
+							</StackPanel>						
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+			</Grid>
+		</Grid>
+
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="10 10 80 30" Grid.Row="2">
+			<Button Content="Resource Page" IsEnabled="{Binding ResourcePageVisibility}" Command="{Binding ResourcePageCommand}"/>
+		</StackPanel>
+	</Grid>
+</UserControl>

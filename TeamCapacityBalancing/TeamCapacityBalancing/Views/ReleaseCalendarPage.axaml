@@ -1,0 +1,82 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="using:TeamCapacityBalancing.ViewModels"
+			 xmlns:models="using:TeamCapacityBalancing.Models"
+			 xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="TeamCapacityBalancing.Views.ReleaseCalendarPage"
+			 x:DataType="vm:ReleaseCalendarViewModel"
+			 x:CompileBindings="True">
+
+	<UserControl.DataContext>
+		<vm:ReleaseCalendarViewModel/>
+	</UserControl.DataContext>
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+		<Grid Grid.Row="0">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+
+			<Button Margin="25 0 0 0" Grid.Column="0" HorizontalAlignment="Left" Command="{Binding OpenBalancigPageCommand}">
+				<icons:MaterialIcon Width="30" Height="15" Kind="ArrowLeft"/>
+			</Button>
+			<StackPanel Grid.Column="1" HorizontalAlignment="Center">
+				<TextBlock Text="Release Calendar" FontSize="25" Margin="25"/>
+			</StackPanel>
+		</Grid>
+
+		<DataGrid Grid.Row="1" x:Name="calendarGrid" CanUserResizeColumns="True"  ColumnWidth="*" Items="{Binding Sprints}" AutoGenerateColumns="False"
+			   GridLinesVisibility="All" BorderThickness="1" BorderBrush="Gray" Margin="25">
+
+			<DataGrid.Columns>
+				<DataGridTemplateColumn CanUserResize="True" Header="Sprints" >
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate x:DataType="models:Sprint">
+							<TextBlock Text="{Binding Name}" HorizontalAlignment="Center"/>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+			</DataGrid.Columns>
+
+			<DataGrid.Columns>
+				<DataGridTemplateColumn CanUserResize="True" Header="Start" >
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate x:DataType="models:Sprint">
+							<TextBlock Text="{Binding StartDate}" HorizontalAlignment="Center"/>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+			</DataGrid.Columns>
+
+			<DataGrid.Columns>
+				<DataGridTemplateColumn CanUserResize="True" Header="End" >
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate x:DataType="models:Sprint">
+							<TextBlock Text="{Binding EndDate}" HorizontalAlignment="Center"/>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+			</DataGrid.Columns>
+
+			<DataGrid.Columns>
+				<DataGridTemplateColumn CanUserResize="True" Header="Weeks" >
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate x:DataType="models:Sprint">
+							<TextBlock Text="{Binding NumberOfWeeks}" HorizontalAlignment="Center"/>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+			</DataGrid.Columns>
+
+		</DataGrid>
+	</Grid>
+
+</UserControl>

@@ -1,0 +1,97 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="using:TeamCapacityBalancing.ViewModels"
+			 xmlns:models="using:TeamCapacityBalancing.Models"
+             xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="TeamCapacityBalancing.Views.SprintSelectionPage"
+			 x:DataType="vm:SprintSelectionViewModel"
+			 x:CompileBindings="True"
+			 x:Name="SprintSelectionControl"
+			 >
+
+	<UserControl.DataContext>
+		<vm:SprintSelectionViewModel/>
+	</UserControl.DataContext>
+
+
+	<Grid Margin="25">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10" Grid.Row="0">
+			<TextBlock Text="Sprint Definition" FontSize="25"/>
+		</StackPanel>
+
+		<Button Grid.Row="0" HorizontalAlignment="Left" Margin="5" Command="{Binding OpenBalancigPageCommand}">
+			<icons:MaterialIcon Width="30" Height="15" Kind="ArrowLeft"/>
+		</Button>
+
+		<StackPanel Grid.Row="1" Orientation="Horizontal">
+			<TextBlock Text="Number of sprints to generate" VerticalAlignment="Center" Margin="0,0,10,0"/>
+			<NumericUpDown Width="50" Height="10" Margin="5 5 5 5" Watermark="Number of sprints" Value="{Binding NrGenerateSprints}" ShowButtonSpinner="False"/>
+			<TextBlock Text="Select start date for release" Margin="50,0,0,0" VerticalAlignment="Center"/>
+			<DatePicker Width="500" Height="40" SelectedDate="{Binding StartDate}"/>
+			<Separator Width="20"/>
+			<Button Content="Define" Command="{Binding GenerateSprintsCommand}"/>
+			<Separator Width="20"/>
+		</StackPanel>
+		<DataGrid Grid.Row="2" x:Name="sprintGrid" ColumnWidth="*" Items="{Binding Sprints}" AutoGenerateColumns="False"
+		GridLinesVisibility="All" BorderThickness="1" BorderBrush="Gray">
+
+			<DataGrid.Columns>
+				<DataGridTemplateColumn>
+					<DataGridTemplateColumn.Header>
+						<TextBlock Text="Sprints" TextAlignment="Center"/>
+					</DataGridTemplateColumn.Header>
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate x:DataType="models:Sprint">
+							<TextBlock Text="{Binding Name}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+			</DataGrid.Columns>
+
+			<DataGrid.Columns>
+				<DataGridTemplateColumn>
+					<DataGridTemplateColumn.Header>
+						<TextBlock Text="Number of Weeks" TextAlignment="Center"/>
+					</DataGridTemplateColumn.Header>
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate x:DataType="models:Sprint">
+							<TextBox BorderBrush="Transparent" Text="{Binding NumberOfWeeks}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+			</DataGrid.Columns>
+		</DataGrid>
+		<!--<StackPanel Grid.Row="3" Margin="15" Orientation="Horizontal">
+			<ToggleSwitch IsChecked="{Binding Switch}" Command="{Binding UncheckSprintCommand}" Margin="0 0 50 0"/>
+			<Button Content="Select"/>
+		</StackPanel>-->
+		<StackPanel Grid.Row="4" Margin="0 20 0 75" >
+
+			<TextBlock Text="Select Short Term period by:"></TextBlock>
+			
+			<StackPanel Grid.Column="0"  Margin="0 0 0 0" Orientation="Horizontal">
+				<RadioButton IsChecked="{Binding SelectByEndDate}" Command="{Binding UncheckEndDateCommand}"  Content="End Date" Margin="0,0,10,0"/>
+				<DatePicker SelectedDate="{Binding FinishDate}" IsEnabled="{Binding SelectByEndDate}"/>
+			</StackPanel>
+			
+			<Separator Height="40"/>
+
+			<StackPanel Grid.Column="1"  Orientation="Horizontal">
+				<RadioButton IsChecked="{Binding SelectByNrSprints}" Command="{Binding UncheckNrSprintsCommand}"  Content="Number of Sprints" Margin="0,0,10,0"/>
+				<NumericUpDown ShowButtonSpinner="False" Value="{Binding NrSprints}" Width="150" Watermark="Number of sprints" IsEnabled="{Binding SelectByNrSprints}" Minimum="0"/>
+			</StackPanel>
+		</StackPanel>
+	</Grid>
+
+</UserControl>

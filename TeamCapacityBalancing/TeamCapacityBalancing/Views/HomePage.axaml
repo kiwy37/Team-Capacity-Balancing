@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="TeamCapacityBalancing.Views.HomePage">
+
+	<Grid>
+		<Image Source="..\Images\intropic.jpg" Stretch="UniformToFill"/>
+		<Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="*"/>
+			</Grid.RowDefinitions>
+			<Viewbox Stretch="Uniform">
+				<StackPanel Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+					<TextBlock Text="Team Capacity Balancing" FontSize="20" Margin="50 0 50 0"/>
+					<Button FontSize="7" Content="Start" HorizontalAlignment="Center" Background="Transparent" Command="{Binding OpenBalancigPageCommand}"/>
+				</StackPanel>
+			</Viewbox>
+		</Grid>
+	</Grid>
+
+
+</UserControl>
